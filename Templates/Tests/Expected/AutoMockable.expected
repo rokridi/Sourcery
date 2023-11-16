@@ -433,16 +433,20 @@ class AsyncProtocolMock: AsyncProtocol {
     }
     var callAsyncAndThrowParameterReceivedParameter: (Int)?
     var callAsyncAndThrowParameterReceivedInvocations: [(Int)] = []
-    var callAsyncAndThrowParameterReturnValue: String!
+    var callAsyncAndThrowParameterReturnValue: String! {
+        didSet {
+            callAsyncAndThrowParameterThrowableError = nil
+        }
+    }
     var callAsyncAndThrowParameterClosure: ((Int) async throws -> String)?
 
     func callAsyncAndThrow(parameter: Int) async throws -> String {
-        if let error = callAsyncAndThrowParameterThrowableError {
-            throw error
-        }
         callAsyncAndThrowParameterCallsCount += 1
         callAsyncAndThrowParameterReceivedParameter = parameter
         callAsyncAndThrowParameterReceivedInvocations.append(parameter)
+        if let error = callAsyncAndThrowParameterThrowableError {
+            throw error
+        }
         if let callAsyncAndThrowParameterClosure = callAsyncAndThrowParameterClosure {
             return try await callAsyncAndThrowParameterClosure(parameter)
         } else {
@@ -479,12 +483,12 @@ class AsyncProtocolMock: AsyncProtocol {
     var callAsyncAndThrowVoidParameterClosure: ((Int) async throws -> Void)?
 
     func callAsyncAndThrowVoid(parameter: Int) async throws {
-        if let error = callAsyncAndThrowVoidParameterThrowableError {
-            throw error
-        }
         callAsyncAndThrowVoidParameterCallsCount += 1
         callAsyncAndThrowVoidParameterReceivedParameter = parameter
         callAsyncAndThrowVoidParameterReceivedInvocations.append(parameter)
+        if let error = callAsyncAndThrowVoidParameterThrowableError {
+            throw error
+        }
         try await callAsyncAndThrowVoidParameterClosure?(parameter)
     }
 
@@ -499,10 +503,10 @@ class AsyncThrowingVariablesProtocolMock: AsyncThrowingVariablesProtocol {
 
     var title: String? {
         get async throws {
+            titleCallsCount += 1
             if let error = titleThrowableError {
                 throw error
             }
-            titleCallsCount += 1
             if let titleClosure = titleClosure {
                 return try await titleClosure()
             } else {
@@ -520,10 +524,10 @@ class AsyncThrowingVariablesProtocolMock: AsyncThrowingVariablesProtocol {
 
     var firstName: String {
         get async throws {
+            firstNameCallsCount += 1
             if let error = firstNameThrowableError {
                 throw error
             }
-            firstNameCallsCount += 1
             if let firstNameClosure = firstNameClosure {
                 return try await firstNameClosure()
             } else {
@@ -1206,14 +1210,18 @@ class ThrowableProtocolMock: ThrowableProtocol {
     var doOrThrowCalled: Bool {
         return doOrThrowCallsCount > 0
     }
-    var doOrThrowReturnValue: String!
+    var doOrThrowReturnValue: String! {
+        didSet {
+            doOrThrowThrowableError = nil
+        }
+    }
     var doOrThrowClosure: (() throws -> String)?
 
     func doOrThrow() throws -> String {
+        doOrThrowCallsCount += 1
         if let error = doOrThrowThrowableError {
             throw error
         }
-        doOrThrowCallsCount += 1
         if let doOrThrowClosure = doOrThrowClosure {
             return try doOrThrowClosure()
         } else {
@@ -1231,10 +1239,10 @@ class ThrowableProtocolMock: ThrowableProtocol {
     var doOrThrowVoidClosure: (() throws -> Void)?
 
     func doOrThrowVoid() throws {
+        doOrThrowVoidCallsCount += 1
         if let error = doOrThrowVoidThrowableError {
             throw error
         }
-        doOrThrowVoidCallsCount += 1
         try doOrThrowVoidClosure?()
     }
 
@@ -1249,10 +1257,10 @@ class ThrowingVariablesProtocolMock: ThrowingVariablesProtocol {
 
     var title: String? {
         get throws {
+            titleCallsCount += 1
             if let error = titleThrowableError {
                 throw error
             }
-            titleCallsCount += 1
             if let titleClosure = titleClosure {
                 return try titleClosure()
             } else {
@@ -1260,7 +1268,11 @@ class ThrowingVariablesProtocolMock: ThrowingVariablesProtocol {
             }
         }
     }
-    var underlyingTitle: String?
+    var underlyingTitle: String? {
+        didSet {
+            titleThrowableError = nil
+        }
+    }
     var titleThrowableError: Error?
     var titleClosure: (() throws -> String?)?
     var firstNameCallsCount = 0
@@ -1270,10 +1282,10 @@ class ThrowingVariablesProtocolMock: ThrowingVariablesProtocol {
 
     var firstName: String {
         get throws {
+            firstNameCallsCount += 1
             if let error = firstNameThrowableError {
                 throw error
             }
-            firstNameCallsCount += 1
             if let firstNameClosure = firstNameClosure {
                 return try firstNameClosure()
             } else {
@@ -1281,7 +1293,11 @@ class ThrowingVariablesProtocolMock: ThrowingVariablesProtocol {
             }
         }
     }
-    var underlyingFirstName: String!
+    var underlyingFirstName: String! {
+        didSet {
+            firstNameThrowableError = nil
+        }
+    }
     var firstNameThrowableError: Error?
     var firstNameClosure: (() throws -> String)?
 
